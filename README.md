@@ -15,10 +15,10 @@ To add and enable the  rule `my-tcp-rule`, which opens listening TCP 2300 port o
     winfire.js /rule-add /name:my-tcp-rule /prot-tcp /local-port:2300 /enab /interf:"Local Area Connection" /desc:"Rule added by winfire.js"
 
 Note the colons after the options and quotations for including spaces.   
-It possible to attach to rule to more interfaces with separating names with commas and *no spaces*, e.g.: `/interf:"Local Area Connection, Mobile Broadband Connection".
+It possible to attach to rule to more interfaces with separating names with commas and *no spaces*, e.g.: `/interf:"Local Area Connection, Mobile Broadband Connection"`.
 
 
-The connection name, which is localised based on your system language setting, can be  find in the Network Connection folder, perhaps opened with `ncpa.cpl`.  
+The connection name, which is localised based on your system language setting, can be found in the Network Connection folder, perhaps opened with `ncpa.cpl`.  
 Anyway you can get the full list  via:
 
     winfire.js /con-show
@@ -31,7 +31,7 @@ Eventually you can store the connection name identified by a substring in a vari
 
     for /F "tokens=*" %%i in ('winfire.js /con-show:local') do set LAN=%%i
 
-(replace  `%%` with `%` for interactive)
+(replace  `%%` with `%` for interactive use)
 
 
 If you want details on the rule just added (and the winfire.js did the job):
@@ -72,13 +72,15 @@ If you want to list all rules in a grep friendly way:
 In this case you get every row, and therefore every rule field, prefixed with the rule name plus `==`.
 So you can easily grep `rules.txt` rows and select the rows by rule.
 
-Formal command reference
+Formal Command Reference
 ------------------------
 
-The following is the output you might get from   `winfire.js /help`
-    Manage Windows Firewall rules per interface
-    by Antonio FASANO
-    https://github.com/AntonioFasano/winfire.js
+The following is the output you might get from   `winfire.js /help`   
+
+
+    Manage Windows Firewall rules per interface   
+    by Antonio FASANO   
+    https://github.com/AntonioFasano/winfire.js   
     
     winfire.js connection-name [options]
     Use double quotations for option values containing spaces: /opt:"my val"

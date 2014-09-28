@@ -15,9 +15,9 @@
 
 var 
 HEAD="\
-Manage Windows Firewall rules per interface\n\
-by Antonio FASANO\n\
-https://github.com/AntonioFasano/winfire.js\n\
+Manage Windows Firewall rules per interface   \n\
+by Antonio FASANO   \n\
+https://github.com/AntonioFasano/winfire.js   \n\
 \n",
 
 HELP=" connection-name [options]\n\

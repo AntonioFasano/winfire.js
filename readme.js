@@ -1,9 +1,9 @@
 
 var fso = new ActiveXObject("Scripting.FileSystemObject"),
     dir = fso.GetParentFolderName(WScript.ScriptFullName),
-    exe = dir + "\\firewall.js /help",
+    exe = dir + "\\winfire.js /help",
     md= dir + "\\ReadMe.md",
-    head=dir + "\\head.txt",
+    head=dir + "\\head.md",
     ForReading = 1, ForWriting = 2, Create=true,
     oMd = fso.OpenTextFile(md, ForWriting, Create);
 head = fso.OpenTextFile(head, ForReading).ReadAll();

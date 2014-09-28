@@ -1,4 +1,0 @@
-This script will help you manage firewall, setting per per interface  rules. 
-
-The full reference as from firewall.js /help is:
-

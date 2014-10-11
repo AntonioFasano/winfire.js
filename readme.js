@@ -7,16 +7,18 @@ var fso = new ActiveXObject("Scripting.FileSystemObject"),
     ForReading = 1, ForWriting = 2, Create=true,
     oMd = fso.OpenTextFile(md, ForWriting, Create);
 head = fso.OpenTextFile(head, ForReading).ReadAll();
+// Remove Emacs tags
+head = head.replace(/<!-- Local Variables: -->[\S\s]+/m, ""); 
 
-WScript.Echo(md);
+
 
 var WshShell = new ActiveXObject("WScript.Shell");
-var oExec    = WshShell.Exec("cscript //nologo " + exe);
+var oExec    = WshShell.Exec("cscript.exe //nologo " + exe);
 help=oExec.StdOut.ReadAll();
 
 
-help = help .replace(/^/mg, "    "); 
+help = help.replace(/^/mg, "    "); 
 oMd.Write(head + help);
 oMd.Close();
 WScript.Echo(head + help);
-
+WScript.Echo(md);

@@ -248,8 +248,8 @@ The following is the output you might get from   winfire `/help` option.
     
     Examples in Powershell:
     ## Add and show LAN TCP rule for a given application
-    $lan=.winfire /cs:local
-    .winfire /ra:myrule /app:"app path" /tcp /lp:2300 /enab /if:$lan
-    .winfire /rs:myrule
+    $lan=.\winfire /cs:local
+    .\winfire /ra:myrule /app:"app path" /tcp /lp:2300 /enab /if:$lan
+    .\winfire /rs:myrule
     
     

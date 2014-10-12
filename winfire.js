@@ -129,9 +129,9 @@ MORE="\n\
                   If SERVICE is \"*\", then any service, but  not an application, matches this rule\n\
 \nExamples in Powershell:\n\
 ## Add and show LAN TCP rule for a given application\n\
-$lan=.\winfire /cs:local\n\
-.\winfire /ra:myrule /app:\"app path\" /tcp /lp:2300 /enab /if:$lan\n\
-.\winfire /rs:myrule\n\n\
+$lan=.\\winfire /cs:local\n\
+.\\winfire /ra:myrule /app:\"app path\" /tcp /lp:2300 /enab /if:$lan\n\
+.\\winfire /rs:myrule\n\n\
 ";
 
 //Globals options

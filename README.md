@@ -43,7 +43,7 @@ Note that this change is persistent. If you want to restore the original Wscript
 Sample winfire commands
 -----------------------
 
-To add and enable the  rule `myrule`, which allow `c:\myapp` to open the listening TCP 2300 port on the Local Area Connection:
+To add and enable the  rule `myrule`, which allows `c:\myapp` to open the listening TCP 2300 port on the Local Area Connection:
 
 
     PS> .\winfire /rule-add:myrule /app:c:\myapp /prot-tcp /local-port:2300 /enab /interf:"Local Area Connection" /desc:"Rule added by winfire"	

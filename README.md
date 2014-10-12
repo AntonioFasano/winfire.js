@@ -43,10 +43,10 @@ Note that this change is persistent. If you want to restore the original Wscript
 Sample winfire commands
 -----------------------
 
-To add and enable the  rule `myrule`, which opens the listening TCP 2300 port on the Local Area Connection:
+To add and enable the  rule `myrule`, which allow `c:\myapp` to open the listening TCP 2300 port on the Local Area Connection:
 
 
-    PS> .\winfire /rule-add:myrule /prot-tcp /local-port:2300 /enab /interf:"Local Area Connection" /desc:"Rule added by winfire"	
+    PS> .\winfire /rule-add:myrule /app:c:\myapp /prot-tcp /local-port:2300 /enab /interf:"Local Area Connection" /desc:"Rule added by winfire"	
 	Using profile: Private Profile, Public Profile
 
    If a profile is not specified, the rule is active on any available profile, hence the command output.
@@ -58,7 +58,7 @@ Note: Windows Firewall (and so winfire) accepts more rules with the same name.
 
 While the long version is often  used in this section, winfire commands can be shortned (see command reference). Omitting the description, the previous line can be also written as:
 
-    PS> .\winfire /ra:myrule /tcp /lp:2300 /enab /if:"Local Area Connection"
+    PS> .\winfire /ra:myrule /app:c:\myapp /tcp /lp:2300 /enab /if:"Local Area Connection"
 
 
 The  interface or connection name, which is localised for  your system language, can be found in the Network Connection folder, perhaps opened with `ncpa.cpl` (the word 'connection' is normally preferred when the interface is a modem).
@@ -76,18 +76,18 @@ When you ask for a substring the result(s) will be printed in a  double-double q
 Therefore you may add a rule for the local connection, whose full name you don't know, as follows:
 
     PS> $lan=.\winfire /con-show:local
-    PS> .\winfire /ra:myrule /tcp /lp:2300 /enab /if:$lan
+    PS> .\winfire /ra:myrule /app:c:\myapp /tcp /lp:2300 /enab /if:$lan
 
 The value of $lan will be similar to `""Local Area Connection""`.
 
-__A note to `cmd.exe` shell users__. It is possible (with a complex line) to store the connection name in a LAN variable in `cmd.exe`:
+__A note to `cmd.exe` shell users__. In `cmd.exe` it is possible (with a complex line) to store the connection name in a LAN variable:
 
     > for /F "usebackq delims="  %x in (`winfire.js /cs:local`) do set LAN=%x
 
 (Replace `%x` with `%%x` in batch scripts). In this case, pass it to winfire with: `/if:"%LAN%"`
 
 
-If you want details on the rule just added (and to check winfire did the job):
+If you want details on the rule just added (and to check winfire did the job properly):
 
     PS > .\winfire /rule-show:myrule                          
     myrule                                                    

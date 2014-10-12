@@ -1,5 +1,5 @@
-winfire.js
-==========
+winfire.js aka winfire
+=====================
 
 [github.com/AntonioFasano/winfire.js](https://github.com/AntonioFasano/winfire.js)
 
@@ -46,59 +46,70 @@ Sample winfire commands
 To add and enable the  rule `myrule`, which opens the listening TCP 2300 port on the Local Area Connection:
 
 
-    PS> .\winfire /rule-add:myrule /prot-tcp /local-port:2300 /enab /interf:"Local Area Connection" /desc:"Rule added by winfire.js"
-	
-	Using profile: Public Profile
+    PS> .\winfire /rule-add:myrule /prot-tcp /local-port:2300 /enab /interf:"Local Area Connection" /desc:"Rule added by winfire"	
+	Using profile: Private Profile, Public Profile
 
-If you did not ask for a specific profile, winfire uses the current one. Here "Public Profile" is assumed to be  such, hence the command output.
+   If a profile is not specified, the rule is active on any available profile, hence the command output.
 
 Note the colons after the options and quotations for including spaces.   
 It possible to attach to rule to more interfaces with separating names with commas and *no spaces*, e.g.: `/interf:"Local Area Connection,Mobile Broadband Connection"`.
+
+Note: Windows Firewall (and so winfire) accepts more rules with the same name. 
 
 While the long version is often  used in this section, winfire commands can be shortned (see command reference). Omitting the description, the previous line can be also written as:
 
     PS> .\winfire /ra:myrule /tcp /lp:2300 /enab /if:"Local Area Connection"
 
 
-The connection name, which is localised for  your system language, can be found in the Network Connection folder, perhaps opened with `ncpa.cpl`.  
-Anyway you can get the full list  via:
+The  interface or connection name, which is localised for  your system language, can be found in the Network Connection folder, perhaps opened with `ncpa.cpl` (the word 'connection' is normally preferred when the interface is a modem).
+
+Anyway you can get the full list via:
 
     PS> .\winfire /con-show
 
-If don't know the exact name for a connection, but you know it is identified by the substring  'local' (case insensitive), you will get it with:
+If you don't know the exact name for a connection, but you know it is identified by the substring  'local' (case insensitive), you will get it with:
 
     PS> .\winfire /con-show:local
 	
 
+When you ask for a substring the result(s) will be printed in a  double-double quote style. This makes safe to add a name to a shell variable and pass it as a value for `/interf`.  
 Therefore you may add a rule for the local connection, whose full name you don't know, as follows:
 
     PS> $lan=.\winfire /con-show:local
     PS> .\winfire /ra:myrule /tcp /lp:2300 /enab /if:$lan
 
-If you want details on the rule just added (and to check winfire.js did the job):
+The value of $lan will be similar to `""Local Area Connection""`.
 
-    PS> .\winfire /rule-show:myrule   
+__A note to `cmd.exe` shell users__. In `cmd.exe` it is possible (with a complex line) to store the connection name in a LAN variable:
 
-    myrule                                 
-    Description:    Rule added by winfire.js    
-    Profiles:       Public Profile              
-    Application Name:                           
-    Service Name:                               
-    Protocol:       TCP                         
-    Local Ports:    2300                        
-    Remote Ports:   *                           
-    LocalAddresses: *                           
-    RemoteAddresses:        *                   
-    Direction:      In                          
-    Enabled:        true                        
-    Edge:   false                               
-    Action: Allow                               
-    Grouping:                                   
-    Edge:   false                               
-    Interface Types:        All                 
-    Interfaces:     Local Area Connection 
+    > for /F "usebackq delims="  %x in (`winfire.js /cs:local`) do set LAN=%x
+
+(Replace `%x` with `%%x` in batch scripts). In this case, pass it to winfire with: `/if:"%LAN%"`
 
 
+If you want details on the rule just added (and to check winfire did the job properly):
+
+    PS > .\winfire /rule-show:myrule                          
+    myrule                                                    
+    Description:            Rule added by winfire             
+    Profiles:               Private Profile, Public Profile   
+    Application Name:       c:\myapp                          
+    Service Name:                                             
+    Protocol:               TCP                               
+    Local Ports:            2300                              
+    Remote Ports:           *                                 
+    LocalAddresses:         *                                 
+    RemoteAddresses:        *                                 
+    Direction:              In                                
+    Enabled:                true                              
+    Edge Traversal:         false                             
+    Action:                 Allow                             
+    Grouping:                                                 
+    Interface Types:        All                               
+    Interfaces:             Local Area Connection 
+
+
+If there are more rules  with the same name, the last added will be displayed first. 
 
 To list all the rules relating to a specific connection use:
 
@@ -126,7 +137,7 @@ To delete the rule just created:
     Removed one: my-tcp-rule          
 
 
-To understand the output, note that Windows allows to add more rules with the same name. If you have *n* of them, you have to use `/rule-del`  *n* times.
+To understand the output, note that Windows allows to add more rules with the same name. If you have *n* of them, you have to use `/rule-del`  *n* times. Normally the last rule  added will be removed first. 
 
 
 

@@ -127,7 +127,7 @@ MORE="\n\
                   SERVICE is the short name from Services snap-in\n\
                   If `/service' is not given, any service matches this rule.\n\
                   If SERVICE is \"*\", then any service, but  not an application, matches this rule\n\
-\nExamples in Powershell:\n\
+\nExamples in PowerShell:\n\
 ## Add and show LAN TCP rule for a given application\n\
 $lan=.\\winfire /cs:local\n\
 .\\winfire /ra:myrule /app:\"app path\" /tcp /lp:2300 /enab /if:$lan\n\
@@ -158,7 +158,7 @@ var
     o_enab=false,          
     o_group="",         
     o_icmptype="",      
-    o_interf="", //former userConn
+    o_interf="",
     usrInterfaceArray=[],    
     o_itypeRemote=false,
     o_itypeLan=false,
@@ -256,16 +256,6 @@ function Main(){
 
 function ParseArgs(){
 
-
-//WScript.Echo(WScript.Arguments(0));
-//WScript.Echo(WScript.Arguments(1));
-//WScript.Echo(WScript.Arguments(2));
-//WScript.Echo(WScript.Arguments(3));
-//WScript.Echo(WScript.Arguments(4));
-//WScript.Echo(WScript.Arguments(5));
-//WScript.Quit();
-
-	 
   // No named args triggers help
   if(WScript.Arguments.named.Count==0)
     ShowUsage() ;
@@ -280,10 +270,10 @@ function ParseArgs(){
     var val=argsNamed(e.item());    
     switch (e.item()){
 
-      case "cs" : case "con-show":   o_conShow=true;   usrConsub=val;     break;
+      case "cs" : case "con-show":   o_conShow=true;   usrConsub=val;  break;
       case "ps" : case "prof-show":  o_profShow=true;                  break;
       case "ra" : case "rule-add":   o_ruleAdd=true;   o_name=val;     break;
-      case "rd" : case "rule-del":   o_ruleDel=true;   usrRule=val;   break;
+      case "rd" : case "rule-del":   o_ruleDel=true;   usrRule=val;    break;
       case "rs" : case "rule-show":  o_ruleShow=true;  usrRule=val; o_long=true; break;
 
       case "long":       o_long=true;                    break;
@@ -369,8 +359,10 @@ function isConn (sCons){
 //If usrConsub is not null print only items matching the substring (non case)
 function conShow (){
   InterfaceArray.map(function(item){
+//XXXXX consider to join next lines
     if(usrConsub==null) WScript.Echo(item);
-    else if(RegExp(usrConsub, "i").test(item)) WScript.Echo("\"\"" + item + "\"\"" );
+//    else if(RegExp(usrConsub, "i").test(item)) WScript.Echo("\"\"" + item + "\"\"" );
+    else if(RegExp(usrConsub, "i").test(item)) WScript.Echo( item  );
   })
 }
 
@@ -562,7 +554,7 @@ function ruleAdd(){
 
   if(o_interf!="")
     oFWRule.Interfaces = VArray(o_interf.split(",")); 
-  
+  WScript.Echo("if: "+o_interf);
 
   var itype="";
   if(o_itypeRemote)

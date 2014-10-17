@@ -5,15 +5,19 @@ winfire.js aka winfire
 
 This JScript script helps managing Windows Firewall, setting per per interface rules. 
 
-It has been tested under Windows 7.  
+Winfire has been tested under Windows 7. It is based on
+[Windows Firewall with Advanced Security Interfaces](http://msdn.microsoft.com/en-us/library/windows/desktop/ff956124). The minimum supported client for this API is Windows Vista and  the minimum supported server is Windows Server 2008.
+
+
+
 Note: You need  elevated privileges to modify Windows Firewall settings and so for `winfire.js` too.
 
 
 How to run winfire in your favourite shell
----------------------------------
+------------------------------------------
 
 The  command examples presented here are based on the native Windows  PowerShell.
-To distingush command lines from their output the former are  are prefixed with `PS>`.  
+To distinguish command lines from their output the former are  are prefixed with `PS>`.  
 
 If you choose another shell modify the commands accordingly.
 Whatever your preferences, always *open the chosen shell  with elevated privileges*. 
@@ -22,7 +26,7 @@ Assuming that winfire is in your path, the long way to run it is:
 
     PS> cscript winfire.js /help
 
-This is because by default Windows runs scripts with the GUI based Wscript.
+This is because by default Windows runs scripts with the GUI based `WScript`.
 To simplify, you might change the defaults  via:
 
 	PS> $sys="$env:SystemRoot\System32\cscript.cmd"
@@ -35,7 +39,7 @@ Now you can run winfire with  the simpler:
     PS> winfire /help
 
 
-Note that this change is persistent. If you want to restore the original Wscript association, just use:
+Note that this change is persistent. If you want to restore the original `WScript` association, just use:
 
 	PS> cmd /c ftype jsfile=wscript.exe "%1" %*
 
@@ -56,7 +60,7 @@ It possible to attach to rule to more interfaces with separating names with comm
 
 Note: Windows Firewall (and so winfire) accepts more rules with the same name. 
 
-While the long version is often  used in this section, winfire commands can be shortned (see command reference). Omitting the description, the previous line can be also written as:
+While the long version is often  used in this section, winfire commands can be shortened (see command reference). Omitting the description, the previous line can be also written as:
 
     PS> .\winfire /ra:myrule /app:c:\myapp /tcp /lp:2300 /enab /if:"Local Area Connection"
 
@@ -72,26 +76,16 @@ If you don't know the exact name for a connection, but you know it is identified
     PS> .\winfire /con-show:local
 	
 
-When you ask for a substring the result(s) will be printed in a  double-double quote style. This makes safe to add a name to a shell variable and pass it as a value for `/interf`.  
 Therefore you may add a rule for the local connection, whose full name you don't know, as follows:
 
     PS> $lan=.\winfire /con-show:local
     PS> .\winfire /ra:myrule /app:c:\myapp /tcp /lp:2300 /enab /if:$lan
 
-The value of $lan will be similar to `""Local Area Connection""`.
-
-__A note to `cmd.exe` shell users__. In `cmd.exe` it is possible (with a complex line) to store the connection name in a LAN variable:
-
-    > for /F "usebackq delims="  %x in (`winfire.js /cs:local`) do set LAN=%x
-
-(Replace `%x` with `%%x` in batch scripts). In this case, pass it to winfire with: `/if:"%LAN%"`
-
-
 If you want details on the rule just added (and to check winfire did the job properly):
 
     PS > .\winfire /rule-show:myrule                          
     myrule                                                    
-    Description:            Rule added by winfire             
+    Description:                                              
     Profiles:               Private Profile, Public Profile   
     Application Name:       c:\myapp                          
     Service Name:                                             
@@ -133,11 +127,11 @@ To delete the rule just created:
 
     PS> .\winfire /rule-del:myrule  
 
-    Found 1 time(s) my-tcp-rule       
-    Removed one: my-tcp-rule          
+    Found 1 time(s) myrule       
+    Removed one: myrule          
 
 
-To understand the output, note that Windows allows to add more rules with the same name. If you have *n* of them, you have to use `/rule-del`  *n* times. Normally the last rule  added will be removed first. 
+To understand the output, remember  that Windows allows to add more rules with the same name. If you have *n* of them, you have to use `/rule-del`  *n* times. Normally the last rule  added will be removed first. 
 
 
 
@@ -257,7 +251,7 @@ The following is the output you might get from   winfire `/help` option.
                       If `/service' is not given, any service matches this rule.
                       If SERVICE is "*", then any service, but  not an application, matches this rule
     
-    Examples in Powershell:
+    Examples in PowerShell:
     ## Add and show LAN TCP rule for a given application
     $lan=.\winfire /cs:local
     .\winfire /ra:myrule /app:"app path" /tcp /lp:2300 /enab /if:$lan

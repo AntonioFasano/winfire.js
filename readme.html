@@ -1,0 +1,204 @@
+<h1 id="winfire.js-aka-winfire">winfire.js aka winfire</h1>
+<p><a href="https://github.com/AntonioFasano/winfire.js">github.com/AntonioFasano/winfire.js</a></p>
+<p>This JScript script helps managing Windows Firewall, setting per per interface rules.<br />You can use it interactively or inside your own scripts, creating Windows Firewall rules.</p>
+<p>Winfire has been tested under Windows 7. It is based on <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ff956124">Windows Firewall with Advanced Security Interfaces</a>. The minimum supported client for this API is Windows Vista and the minimum supported server is Windows Server 2008.</p>
+<p>Note: You need elevated privileges to modify Windows Firewall settings and so for <code>winfire.js</code> too.</p>
+<h2 id="how-to-run-winfire-in-your-favourite-shell">How to run winfire in your favourite shell</h2>
+<p>The command examples presented here are based on the native Windows PowerShell. To distinguish command lines from their output the former are are prefixed with <code>PS&gt;</code>.</p>
+<p>If you choose another shell modify the commands accordingly. Whatever your preferences, always <em>open the chosen shell with elevated privileges</em>.</p>
+<p>The best way is to make <code>winfire.js</code> into an executable. Assuming that <code>winfire.js</code> is in your current directory, use:</p>
+<pre><code>PS&gt; C:\Windows\Microsoft.NET\Framework\v&lt;last-version&gt;\jsc.exe .\winfire.js</code></pre>
+<p>Replace <code>&lt;last-version&gt;</code> with the last version available in you system. You may get it straight via the shell auto-completion. Anyway, iff you have changed the default Windows installation, print the available .Net directories with (they all start with a 'v'):</p>
+<pre><code>PS&gt; dir $env:windir\Microsoft.NET\Framework\v*</code></pre>
+<p>After building <code>winfire.exe</code>, try it works with:</p>
+<pre><code>PS&gt; winfire /help</code></pre>
+<h3 id="winfire.js-as-a-wsh-script">winfire.js as a WSH script</h3>
+<p>If for some reason you prefer to run winfire.js as a Windows Scripting Host (WSH) script, assuming that winfire is in your path, the long way to run it is:</p>
+<pre><code>PS&gt; cscript winfire.js /help</code></pre>
+<p>This is because by default Windows runs scripts with the GUI based <code>WScript</code>. To simplify, you might change the defaults via:</p>
+<pre><code>PS&gt; $sys=&quot;$env:SystemRoot\System32\cscript.cmd&quot;
+PS&gt; echo &quot;@cscript.exe //nologo %*&quot; | out-file -encoding ASCII $sys
+PS&gt; cmd /c ftype jsfile=cscript.cmd &quot;%1&quot; %*
+jsfile=cscript.cmd %1 %*</code></pre>
+<p>Now you can run winfire with the simpler:</p>
+<pre><code>PS&gt; winfire /help</code></pre>
+<p>(Add <code>.js</code> if you have also the <code>.exe</code>.) Note that this change is persistent. If you want to restore the original <code>WScript</code> association, just use:</p>
+<pre><code>PS&gt; cmd /c ftype jsfile=wscript.exe &quot;%1&quot; %*</code></pre>
+<h3 id="winfire.js-andor-winfire.exe">winfire.js and/or winfire.exe</h3>
+<p>Building <code>winfire.exe</code> is a matter of seconds. So, even assuming you need to adapt often the script for some special needs, it is always convenient to recompile it again.</p>
+<p>When you run the script via WSH, it is interpreted, so it will be a tad slower; beside you are using an older version version of the JScript language, confront the last line of <code>winfire.js /help</code> and <code>winfire.exe /help</code> to learn about the version in use.</p>
+<p>If you call <code>winfire</code> (no extension), when you have both <code>.js</code> and <code>.exe</code> available in your path, the latter will have the precedence.</p>
+<h2 id="sample-winfire-commands">Sample winfire commands</h2>
+<p>To add and enable the rule <code>myrule</code>, which allows <code>c:\myapp</code> to open the listening TCP 2300 port on the Local Area Connection:</p>
+<pre><code>PS&gt; .\winfire /rule-add:myrule /app:c:\myapp /prot-tcp /local-port:2300 /enab /interf:&quot;Local Area Connection&quot; /desc:&quot;Rule added by winfire&quot; 
+Using profile: Private Profile, Public Profile</code></pre>
+<p>If a profile is not specified, the rule is active on any available profile, hence the command output.</p>
+<p>Note the colons after the options and quotations for including spaces.<br />It possible to attach to rule to more interfaces with separating names with commas and <em>no spaces</em>, e.g.: <code>/interf:&quot;Local Area Connection,Mobile Broadband Connection&quot;</code>.</p>
+<p>Note: Windows Firewall (and so winfire) accepts more rules with the same name.</p>
+<p>While the long version is often used in this section, winfire commands can be shortened (see command reference). Omitting the description, the previous line can be also written as:</p>
+<pre><code>PS&gt; .\winfire /ra:myrule /app:c:\myapp /tcp /lp:2300 /enab /if:&quot;Local Area Connection&quot;</code></pre>
+<p>The interface or connection name, which is localised for your system language, can be found in the Network Connection folder, perhaps opened with <code>ncpa.cpl</code> (the word 'connection' is normally preferred when the interface is a modem).</p>
+<p>Anyway you can get the full list via:</p>
+<pre><code>PS&gt; .\winfire /con-show</code></pre>
+<p>If you don't know the exact name for a connection, but you know it is identified by the substring 'local' (case insensitive), you will get it with:</p>
+<pre><code>PS&gt; .\winfire /con-show:local</code></pre>
+<p>Therefore you may add a rule for the local connection, whose full name you don't know, as follows:</p>
+<pre><code>PS&gt; $lan=.\winfire /con-show:local
+PS&gt; .\winfire /ra:myrule /app:c:\myapp /tcp /lp:2300 /enab /if:$lan</code></pre>
+<p>If you want details on the rule just added (and to check winfire did the job properly):</p>
+<pre><code>PS &gt; .\winfire /rule-show:myrule                          
+myrule                                                    
+Description:                                              
+Profiles:               Private Profile, Public Profile   
+Application Name:       c:\myapp                          
+Service Name:                                             
+Protocol:               TCP                               
+Local Ports:            2300                              
+Remote Ports:           *                                 
+LocalAddresses:         *                                 
+RemoteAddresses:        *                                 
+Direction:              In                                
+Enabled:                true                              
+Edge Traversal:         false                             
+Action:                 Allow                             
+Grouping:                                                 
+Interface Types:        All                               
+Interfaces:             Local Area Connection </code></pre>
+<p>If there are more rules with the same name, the last added will be displayed first.</p>
+<p>To list all the rules relating to a specific connection use:</p>
+<pre><code>PS&gt; .\winfire /rule-show:$lan </code></pre>
+<p>where <code>$lan</code> is the variable set before for the local connection.<br />This command will return <code>myrule</code> and possibly other rules associated with this connection.</p>
+<p>To list all rules in a grep friendly way you use <code>/rule-show /grep</code>. This will give a detailed rule list (like with <code>/long</code>) where every row is prefixed with the rule name plus <code>==</code>. For example here:</p>
+<pre><code>PS&gt; .\winfire /rule-show /grep | grep &quot;^Windows Media Player.*==Description&quot;</code></pre>
+<p>You grep-filter the output by rules whose name starts with <code>Windows Media Player</code> and by the rows containing the <code>Description</code> field.</p>
+<p>Note that I assume you have some grep utility in your path. If you don't, try the Windows standard <code>find</code>.</p>
+<p>To delete the rule just created:</p>
+<pre><code>PS&gt; .\winfire /rule-del:myrule  
+
+Found 1 time(s) myrule       
+Removed one: myrule          </code></pre>
+<p>To understand the output, remember that Windows allows to add more rules with the same name. If you have <em>n</em> of them, you have to use <code>/rule-del</code> <em>n</em> times. Normally the last rule added will be removed first.</p>
+<h3 id="sample-script">Sample Script</h3>
+<p>Given its command line nature, winfire fits to be added to scripts for adding firewall rules.</p>
+<p>Have a look at <code>netcat.ps1</code>. It is an interactive unit test script, which will authorise <code>netcat</code> network tool to open and start a chat via the <a href="http://virtualbox.org">VirtualBox</a> Virtual interface (<a href="https://www.virtualbox.org/manual/ch06.html#network_hostonly">host-only</a>) and deny the port access via the other interfaces, e.g. LAN, Wi-Fi.</p>
+<p><a href="wikipedia.org/wiki/Netcat">Netcat</a> is a classic net testing tool already available out of the box in Linux. For Windows you may use the <a href="https://cygwin.com/packages">Cygwin</a> version or a native executable, such as the one coming with <a href="http://nmap.org/">nmap</a> application.</p>
+<p>Note that under Linux/Cygwin netcat name is <code>nc</code>, while in Windows it is normally <code>ncat.exe</code>.</p>
+<h2 id="formal-command-reference">Formal Command Reference</h2>
+<p>The following is the output you might get from winfire <code>/help</code> option.</p>
+<pre><code>Manage Windows Firewall rules per interface   
+by Antonio FASANO   
+https://github.com/AntonioFasano/winfire.js   
+
+winfire.js [options]
+Use double quotations for option values containing spaces: /opt:&quot;my val&quot;
+
+/h[elp]                 This help
+/cs | /con-show[:SUB]   Show connection names [containing the substring SUB (ignoring case)]
+/ps | /prof-show        Show active profiles
+/ra | /rule-add:NAME    Add rule NAME       
+/rd | /rule-del:NAME    Remove rule NAME
+/rs | /rule-show[:NAME] Without NAME show rules names, else show details for rule NAME
+/long                   With `/rule-show&#39; use details 
+/grep                   With `/rule-show&#39; use details and prefix each row with rule name + `==&#39;
+/sep                    Separate rules in rule list with `====&#39;
+
+`/rule-add&#39; parameters:
+/blk|/act-block   packets matching rule criteria rule are blocked
+/act-allow        packets matching rule criteria rule are permitted (default)
+/app:APPPATH      traffic generated by app with APPPATH matches this rule. 
+                  If `/app&#39; is not given, any program matches this rule.
+/desc:NAME        the rule long decription
+/dir-in           matches inbound network traffic (See Inbound Rules of Advanced Firewall snap-in)
+/dir-out          matches outbound network traffic(See Outbound Rules of Advanced Firewall snap-in)
+/edge             traffic that traverses an edge device, such as a NAT enabled router between
+                  the local and remote computer matches this rule. Valid only with /dir-in.
+                  Cf. `Allow edge traversal` checkbox in the  Advanced Firewall  snap-in.
+/enab             is the rule is currently enabled?
+/group:NAME       Specifies a group name for a set of rules to modify together 
+/icmptype:LIST    list of ICMP types and codes separated by semicolon.
+                  &quot;*&quot; indicates all ICMP types and codes.
+/if|/interf:LIST  Cnnection/interface list as from `/con-show&#39; to which the rule applies
+                  Separate multiple values with a comma without extra space
+                  If used with `/rule-show&#39;, only rules applying to LIST are shown
+/itype-remote     packets passing through a RAS interface types match this rule     
+/itype-lan        packets passing through a lan interface types match this rule     
+/itype-wless      packets passing through a wireless interface types match this rule 
+/itype-all        packets passing through any interface types match this rule (default)
+/la|/local-addr:ADDR  packets matching ADDR match this rule.
+                  For inbound packets ADDR is matched againist the Destination IP field.
+                  For outbound packets ADDR is matched againist the Source IP field.
+                  ADDR can be
+                  any:              matches any IP address
+                  IPAddress:        matches only the exact IPv4 or IPv6 IP
+                  &quot;SUBNET/MASK&quot;:  matches any IPv4/IPv6 part of the SUBNET (mandatory quotes)
+                                    MASK is the number of bits in the subnet mask or the subnet mask itself.
+                  IPStart-IPEnd:     matches any IPv4/IPv6 falling within this range
+                  Multiple entries can be specified in quotes and separating them with a comma and no spaces.
+                  If `/local-addr&#39; is not given the default is any.
+/lp|/local-port:PORT  packets with matching IP port numbers match this rule.
+                  For inbound packets PORT is matched againist the Destination Port IP field.
+                  For outbound packets PORT is matched againist the Source Port IP field.
+                  PORT can be:
+                  any:         matches any value in the port field of the IP packet.
+                  Integer(s):  individual numbers from 0 through 65535, a range,
+                               or a comma-separated list of numbers and ranges.
+                  rpc:         matches inbound TCP packets that are addressed to the listening socket
+                               of an application that correctly registers the port as an RPC listening
+                               port. A rule with this option must also give /prot-*, dir-* options
+                               and possibly /app or /service options
+                  rpc-epmap:   matches inbound TCP packets that are addressed to the dynamic RPC
+                               endpoint mapper service.
+                               It needs the same companion options as `rpc&#39; value&#39; In paricular,
+                               (to ensure only the RPC service can send/receive data) use:,
+                               `/app:%windir%system32svchost.exe /service:rpcss&#39;
+                               If you create a rule /local-port:rpc, then you must also create a rule
+                               with `/local-port:rpc-epmap` enabled, to allow both the incoming request
+                               to the mapper, and the subsequent packets to the ephemeral ports
+                               assigned by the RPC service.
+                  Teredo:      Matches inbound UDP packets that contain Teredo packets.
+                  iphttps:     Matches inbound TCP packets containing HTTPS with embedded IPv6 packets.
+                               iphttps allows IPv6 packets that would otherwise be blocked if sent by
+                               using Teredo, 6to4, or native IPv6.
+                  Multiple entries can be specified in quotes and separating them with a comma and no spaces
+                  If `/local-port&#39; is not specified, the default is any
+/prof-domain      The rule is assigned to the domain profile (*)
+/prof-private     The rule is assigned to the private profile(*)
+/prof-public      The rule is assigned to the public profile (*)
+                  (*) You can use more `/prof-*&#39; options
+                      The rule will be active when the related profiles are active.
+                      If a profile is not specified, the rule is active on any profile.
+/tcp|/prot-tcp    packets whose protocol field tcp match this rule
+/udp|/prot-udp    packets whose protocol field udp match this rule
+/icmp4|/prot-icmpv4 packets whose protocol field icmpv4 match this rule
+/icmp6|/prot-icmpv6 packets whose protocol field icmpv6 match this rule
+/ra|/remo-addr:ADDR  packets matching remote ADDR match this rule.
+                  for outbound packets ADDR is compared to the Destination IP address field
+                  for inbound packets ADDR is compared to the Source IP address field
+                  ADDR can be
+                  any:          Matches any IP address
+                  localsubnet:  Matches any IP address on the same IP subnet as the local computer
+                  dns|dhcp|wins|defaultgateway: Matches the IP address of any computer configured as
+                                                dns, dhcp, wins, default gateway on the local computer
+                  IPAddress, &quot;SUBNET/MASK&quot;, IPStart-IPEnd:  See `/local-addr&#39;
+                  Multiple entries can be specified as with `/local-addr&#39;
+/rp|/remo-port:PORT  packets with matching IP port numbers match this rule.
+                  For inbound packets PORT is matched againist the Source Port IP field.
+                  For outbound packets PORT is matched againist the Destination Port IP field.
+                  PORT can be:
+                  any:  Matches any value in the port field of the IP packet
+                  Integer(s):  individual numbers from 0 through 65535, a range,
+                               or a comma-separated list of numbers and ranges.
+                  Multiple entries can be specified in quotes and separating them with a comma and no spaces
+                  If `/remo-port&#39; is not specified, the default is any
+/service:SERVICE  traffic generated by service SERVICE matches this rule.
+                  SERVICE is the short name from Services snap-in
+                  If `/service&#39; is not given, any service matches this rule.
+                  If SERVICE is &quot;*&quot;, then any service, but  not an application, matches this rule
+
+Examples in PowerShell:
+## Add and show LAN TCP rule for a given application
+$lan=.\winfire /cs:local
+.\winfire /ra:myrule /app:&quot;app path&quot; /tcp /lp:2300 /enab /if:$lan
+.\winfire /rs:myrule
+
+JScript major version: 5    </code></pre>

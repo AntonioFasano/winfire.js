@@ -3,7 +3,9 @@ winfire.js aka winfire
 
 [github.com/AntonioFasano/winfire.js](https://github.com/AntonioFasano/winfire.js)
 
-This JScript script helps managing Windows Firewall, setting per per interface rules. 
+This JScript script helps managing Windows Firewall, setting per per interface rules.  
+You can use it interactively or inside your own scripts, creating Windows Firewall rules.
+
 
 Winfire has been tested under Windows 7. It is based on
 [Windows Firewall with Advanced Security Interfaces](http://msdn.microsoft.com/en-us/library/windows/desktop/ff956124). The minimum supported client for this API is Windows Vista and  the minimum supported server is Windows Server 2008.
@@ -22,7 +24,23 @@ To distinguish command lines from their output the former are  are prefixed with
 If you choose another shell modify the commands accordingly.
 Whatever your preferences, always *open the chosen shell  with elevated privileges*. 
 
-Assuming that winfire is in your path, the long way to run it is:
+
+The best way is to make `winfire.js` into an executable. Assuming that `winfire.js` is in your current directory, use:
+
+	PS> C:\Windows\Microsoft.NET\Framework\v<last-version>\jsc.exe .\winfire.js
+
+Replace `<last-version>` with the last version available in you system. You may get it straight via the shell auto-completion. Anyway, iff you have changed the default Windows installation, print the available .Net directories with (they all start with a 'v'):
+
+	PS> dir $env:windir\Microsoft.NET\Framework\v*
+
+After building `winfire.exe`,  try it works with:
+
+    PS> winfire /help
+
+
+### winfire.js as a WSH script
+
+If for some reason you prefer to run winfire.js as a Windows Scripting Host (WSH) script, assuming that winfire is in your path, the long way to run it is:
 
     PS> cscript winfire.js /help
 
@@ -38,10 +56,23 @@ Now you can run winfire with  the simpler:
 
     PS> winfire /help
 
-
+(Add `.js` if you have also the `.exe`.)
 Note that this change is persistent. If you want to restore the original `WScript` association, just use:
 
 	PS> cmd /c ftype jsfile=wscript.exe "%1" %*
+
+
+### winfire.js and/or winfire.exe 
+
+Building `winfire.exe` is a matter of seconds. So, even  assuming you need to adapt often the script for some special needs, it is always convenient to recompile it again.
+
+When you run the script via WSH, it is interpreted, so it will be a tad slower; beside you are using an older version version of the JScript language, confront the last line of `winfire.js /help` and `winfire.exe /help` to learn about the version in use. 
+
+If you call `winfire` (no extension), when you have both `.js` and `.exe` available in your path, the latter will have the precedence.
+
+
+
+
 
 
 Sample winfire commands
@@ -132,6 +163,18 @@ To delete the rule just created:
 
 
 To understand the output, remember  that Windows allows to add more rules with the same name. If you have *n* of them, you have to use `/rule-del`  *n* times. Normally the last rule  added will be removed first. 
+
+
+### Sample Script
+
+Given its command line nature, winfire fits to be added to scripts for adding firewall rules.
+
+Have a look at `netcat.ps1`.  It is an interactive unit test script,  which will authorise `netcat` network tool to open and start a chat via the [VirtualBox](http://virtualbox.org) Virtual interface ([host-only](https://www.virtualbox.org/manual/ch06.html#network_hostonly)) and deny the port access via the other interfaces, e.g. LAN, Wi-Fi.
+
+[Netcat](wikipedia.org/wiki/Netcat) is a classic net testing tool already available out of the box in Linux.
+For Windows you may use the [Cygwin](https://cygwin.com/packages) version or  a native executable,  such as the one coming with [nmap](http://nmap.org/) application.
+
+Note that under Linux/Cygwin netcat name is `nc`, while in Windows it is normally `ncat.exe`.
 
 
 
@@ -257,4 +300,5 @@ The following is the output you might get from   winfire `/help` option.
     .\winfire /ra:myrule /app:"app path" /tcp /lp:2300 /enab /if:$lan
     .\winfire /rs:myrule
     
+    JScript major version: 5    
     

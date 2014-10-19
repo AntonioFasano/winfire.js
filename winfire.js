@@ -134,7 +134,7 @@ $lan=.\\winfire /cs:local\n\
 .\\winfire /rs:myrule\n\n\
 ";
 
-//Globals options
+//Globals: options
 var
     InterfaceArray=[],
     //options and values
@@ -216,14 +216,22 @@ NET_FW_IP_PROTOCOL_ICMPv6 = 58
 ;
 
 
+//Globals: Misc
+var Args= Array(),
+    ArgsKey=Array(), ArgsKeyVal=Array(), ArgsUnnamed=Array(),
+    ScriptPath, ScriptName,
+    StdOut, StdErr;
+
 
 Main();
 
 
+
 function Main(){
 
-  ecma5();
   interface2array();
+
+  InitConsole();
   ParseArgs();
 
   if(o_conShow){
@@ -247,29 +255,40 @@ function Main(){
   }
 
   if(o_ruleShow){
-    ruleShow(usrRule);      
+    ruleShow();      
     return; 
   }
   
 }
 
 
+
 function ParseArgs(){
 
+
+  argNames();
+
+
   // No named args triggers help
-  if(WScript.Arguments.named.Count==0)
-    ShowUsage() ;
+  //if(WScript.Arguments.named.Count==0)
+  if(ArgsKey.length==0)
+    ShowUsage(null) ;
 
   // UnNamed args
-  if(WScript.Arguments.Unnamed.Count>0)
+  //if(WScript.Arguments.Unnamed.Count>0)
+  if(ArgsUnnamed.length>0)
     ShowUsage("Wrong arguments. Note: options start with a leading `/\'.") ;
 
+ 
   // Named args
-  var argsNamed=WScript.Arguments.Named;
-  for (var e =new Enumerator(argsNamed); !e.atEnd(); e.moveNext()) {
-    var val=argsNamed(e.item());    
-    switch (e.item()){
-
+  //var argsNamed=WScript.Arguments.Named;
+  //for (var e =new Enumerator(argsNamed); !e.atEnd(); e.moveNext()) {
+  //  var val=argsNamed(e.item());    
+  //  switch (e.item()){
+  for (var i = 0; i < ArgsKey.length; i++){
+    var val=ArgsKeyVal[i];    
+    switch (ArgsKey[i]){
+    
       case "cs" : case "con-show":   o_conShow=true;   usrConsub=val;  break;
       case "ps" : case "prof-show":  o_profShow=true;                  break;
       case "ra" : case "rule-add":   o_ruleAdd=true;   o_name=val;     break;
@@ -280,8 +299,8 @@ function ParseArgs(){
       case "grep":       o_grep=true;    o_long=true;    break;
       case "sep":        o_sep=true;                     break;
 
-      case "h":    ShowUsage();   break;
-      case "help": ShowUsage();   break;
+      case "h":    ShowUsage(null);   break;
+      case "help": ShowUsage(null);   break;
 
       //rule-add parameters 
       case "blk" : case "act-block":    o_actBlock=true;       break; 
@@ -312,7 +331,9 @@ function ParseArgs(){
       case "rp": case "remo-port":      o_remoPort=val;        break; 
       case "service":                   o_service=val;         break; 
       
-      default:  ShowUsage("Unused option: " +  e.item());   
+      //default:  ShowUsage("Unused option: " +  e.item());
+      default:  ShowUsage("Unused option: " +  ArgsKey[i]);
+
     }
   }
 
@@ -324,22 +345,23 @@ function ParseArgs(){
 
 function ShowUsage(error){
 
-  var out=(error ==null) ? WScript.StdOut : WScript.StdErr ;
+  var out=(error ==null) ? StdOut : StdErr ;
   if(error !=null) {
     out.WriteLine(error + "\n");
     MORE="";
   }
-  out.Write(HEAD + WScript.ScriptName + HELP + MORE);
-  WScript.Quit();
+  out.Write(HEAD + ScriptName + HELP + MORE);
+  echo("JScript major version: " + ScriptEngineMajorVersion() );
+  quit();
 
 }
 
 
 //Create array of interface names
-function interface2array (sCons){
+function interface2array (){
   var NETWORK_CONNECTIONS = 0x31;
   var oShell = new ActiveXObject("shell.application");
-  var oFolder = oShell .namespace(NETWORK_CONNECTIONS);
+  var oFolder = oShell.Namespace(int(NETWORK_CONNECTIONS));
   var cFolder = oFolder.items();  
   for (var e = new Enumerator(cFolder); !e.atEnd(); e.moveNext()) 
     InterfaceArray.push(e.item().name);
@@ -349,8 +371,8 @@ function interface2array (sCons){
 //Case sensitive
 function isConn (sCons){
   usrInterfaceArray = sCons.split(",");
-  usrInterfaceArray.forEach(function(item) {
-    if(InterfaceArray.indexOf(item)==-1)
+  forEach(usrInterfaceArray, function(item) {
+    if(indexOf(InterfaceArray, item)==-1)
       ShowUsage("Connection/Interface " + item + " does not exist");
   })
 }
@@ -358,12 +380,12 @@ function isConn (sCons){
 //Show cons/interfs. The list should be similar to that of the Windows network folder
 //If usrConsub is not null print only items matching the substring (non case)
 function conShow (){
-  InterfaceArray.map(function(item){
+  Map(InterfaceArray, function(item){
 //XXXXX consider to join next lines
-    if(usrConsub==null) WScript.Echo(item);
-//    else if(RegExp(usrConsub, "i").test(item)) WScript.Echo("\"\"" + item + "\"\"" );
-    else if(RegExp(usrConsub, "i").test(item)) WScript.Echo( item  );
-  })
+    if(usrConsub==null) echo(item);
+//    else if(RegExp(usrConsub, "i").test(item)) echo("\"\"" + item + "\"\"" );
+    else if(RegExp(usrConsub, "i").test(item)) echo( item  );
+  });
 }
 
 
@@ -376,7 +398,7 @@ function ruleShow(){
   // The returned 'CurrentProfiles' bitmask can have more than 1 bit set if multiple profiles 
   //   are active or current at the same time
   if(o_profShow){
-    WScript.Echo("Active profile(s): " +  getProfiles(oFwPolicy2.CurrentProfileTypes)  );
+    echo("Active profile(s): " +  getProfiles(oFwPolicy2.CurrentProfileTypes)  );
     return;
   }
 
@@ -415,7 +437,7 @@ function ruleShow(){
     //else => check if con is relative to current rule
     else 
       for (var i = 0; i < usrInterfaceArray.length; i++) {
-        if(arRuleInterfaces.indexOf(usrInterfaceArray[i])>-1) {
+        if(indexOf(arRuleInterfaces, usrInterfaceArray[i])>-1) {
         isUsrCon=true;
         break;
       }}
@@ -489,8 +511,8 @@ function ruleShow(){
 
     }
 
-    WScript.Echo(str);
-    if(o_sep) WScript.Echo("=====");
+    echo(str);
+    if(o_sep) echo("=====");
    }
 }
   
@@ -549,12 +571,12 @@ function ruleAdd(){
   if(lProf>0)  oFWRule.Profiles = lProf ;
   else {
     oFWRule.Profiles = oFwPolicy.CurrentProfileTypes;
-    WScript.Echo("Using profile: " + getProfiles(oFwPolicy.CurrentProfileTypes));
+    echo("Using profile: " + getProfiles(oFwPolicy.CurrentProfileTypes));
   }
 
   if(o_interf!="")
     oFWRule.Interfaces = VArray(o_interf.split(",")); 
-  WScript.Echo("if: "+o_interf);
+  echo("if: "+o_interf);
 
   var itype="";
   if(o_itypeRemote)
@@ -611,12 +633,12 @@ function ruleDel(sRule){
     if(e.item().Name==sRule) countRules++;
   
   if(countRules!=0){
-    WScript.Echo("Found " + countRules + " time(s) " +  sRule);
+    echo("Found " + countRules + " time(s) " +  sRule);
     oRules.Remove(sRule);
-    WScript.Echo("Removed one: " +  sRule);
+    echo("Removed one: " +  sRule);
   }
   else
-    WScript.Echo("Unable to find any rule: " +  sRule);
+    echo("Unable to find any rule: " +  sRule);
 
 }
 
@@ -626,7 +648,7 @@ function getProfiles(CurrentProfiles){
 //   are active or current at the same time
 
 
-      strProfiles="";
+    var  strProfiles="";
     if(CurrentProfiles & NET_FW_PROFILE2_DOMAIN)
       strProfiles+=", Domain Profile";
 
@@ -655,88 +677,93 @@ function JSArray(vsArray){
 }
 
 
-// Add ECMA262-5 methods
-//http://stackoverflow.com/questions/2790001/
-function ecma5() {
 
-  Function.prototype.bind= function(owner) {
-    var that= this;
-    if (arguments.length<=1) {
-      return function() {
-        return that.apply(owner, arguments);
-      };
-    } else {
-      var args= Array.prototype.slice.call(arguments, 1);
-      return function() {
-        return that.apply(owner, arguments.length===0? args :
-                          args.concat(Array.prototype.slice.call(arguments)));
-      };
+
+// similEcma 5
+
+function Map (arr, fun){
+  var newarr=Array();
+  for (var i = 0; i < arr.length; i++)
+    newarr.push (fun.call(arr, arr[i], i, arr));
+  return newarr;   
+}
+//echo(Map([10,20,30], function (x) {return x;}));
+
+function forEach (arr, fun){
+  for (var i = 0; i < arr.length; i++)
+    fun.call(arr, arr[i], i, arr  );
+}
+//forEach ([10,20,30], function(x) {myarr.push (x);});
+
+function indexOf (arr, item){
+  for (var i = 0; i < arr.length; i++)
+    if (arr[i]===item) return i;
+  return -1;
+}
+
+//end  similEcma 5
+
+
+//Manage cross-language JScript/JScript.Net
+// 
+//JScript
+@if( @_jscript_version < 6 )
+  //WScript.Echo(@_jscript_version);
+  function echo(str) {WScript.Echo(str)};
+  function quit() {WScript.Quit()};
+  function exit(n) {WScript.Quit(n)};
+  function int (x) {return x} 
+  ScriptPath =WScript.ScriptFullName;
+  for (var i = 0; i < WScript.Arguments.length; i++)
+    Args.push (WScript.Arguments(i));
+
+//JScript.Net
+@else 
+  //print(@_jscript_version);  
+  function echo(str) {print(str)};
+  import System;
+  function quit() {Environment.Exit(0)};
+  function exit(n) {Environment.Exit(n)};
+  ScriptPath =Environment.GetCommandLineArgs()[0];
+  Args = Environment.GetCommandLineArgs().slice(1); 
+@end
+
+function argNames() {
+  //JScript
+  @if( @_jscript_version < 6 )
+    ScriptPath =WScript.ScriptFullName;
+    for (var i = 0; i < WScript.Arguments.length; i++)
+      Args.push (WScript.Arguments(i));
+  //JScript.Net
+  @else 
+    ScriptPath =Environment.GetCommandLineArgs()[0];
+    Args = Environment.GetCommandLineArgs().slice(1); 
+  @end
+
+
+  ScriptName=ScriptPath.slice(ScriptPath.lastIndexOf('\\')+1);
+  for (var i = 0; i < Args.length; i++){
+    var col=Args[i].indexOf(":")
+    if(Args[i].charAt(0) == '/'){
+      ArgsKey.push(col<0 ? Args[i].slice(1) : Args[i].slice(1, col));
+      ArgsKeyVal.push(col<0 ? undefined  : Args[i].slice(col+1));
     }
-  };
-  
+    else ArgsUnnamed.push(Args[i]);
+  }
+}
 
-  String.prototype.trim= function() {
-    return this.replace(/^\s+/, '').replace(/\s+$/, '');
-  };
-  
+function InitConsole() {
+  //JScript
+  @if( @_jscript_version < 6 )
+    StdOut=WScript.StdOut;
+    StdErr=WScript.StdErr;
 
-
-  Array.prototype.indexOf= function(find, i /*opt*/) {
-    if (i===undefined) i= 0;
-    if (i<0) i+= this.length;
-    if (i<0) i= 0;
-    for (var n= this.length; i<n; i++)
-      if (i in this && this[i]===find)
-        return i;
-    return -1;
-  };
-
-  Array.prototype.lastIndexOf= function(find, i /*opt*/) {
-    if (i===undefined) i= this.length-1;
-    if (i<0) i+= this.length;
-    if (i>this.length-1) i= this.length-1;
-    for (i++; i-->0;) /* i++ because from-argument is sadly inclusive */
-      if (i in this && this[i]===find)
-        return i;
-    return -1;
-  };
-
-  Array.prototype.forEach= function(action, that /*opt*/) {
-    for (var i= 0, n= this.length; i<n; i++)
-      if (i in this)
-        action.call(that, this[i], i, this);
-  };
-
-
-  Array.prototype.map= function(mapper, that /*opt*/) {
-    var other= new Array(this.length);
-    for (var i= 0, n= this.length; i<n; i++)
-      if (i in this)
-        other[i]= mapper.call(that, this[i], i, this);
-    return other;
-  };
-
-  Array.prototype.filter= function(filter, that /*opt*/) {
-    var other= [], v;
-    for (var i=0, n= this.length; i<n; i++)
-      if (i in this && filter.call(that, v= this[i], i, this))
-        other.push(v);
-    return other;
-  };
-
-
-  Array.prototype.every= function(tester, that /*opt*/) {
-    for (var i= 0, n= this.length; i<n; i++)
-      if (i in this && !tester.call(that, this[i], i, this))
-        return false;
-    return true;
-  };
-
-  Array.prototype.some= function(tester, that /*opt*/) {
-    for (var i= 0, n= this.length; i<n; i++)
-      if (i in this && tester.call(that, this[i], i, this))
-        return true;
-    return false;
-  };
+  //JScript.Net
+  @else 
+    StdOut=Console.Out;
+    StdErr=Console.Error;
+  @end
 
 }
+
+//end Manage cross-language

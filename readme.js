@@ -1,4 +1,12 @@
 
+// Create markdown and HTML documentation for winfire 
+// For  HTML you need "Pandoc" set the its path below 
+
+//Pandoc 
+var panexe="pandoc";
+
+
+// Attach the winfire help output to main markdown file
 var WshShell = new ActiveXObject("WScript.Shell"),
     fso = new ActiveXObject("Scripting.FileSystemObject"),
     dir = fso.GetParentFolderName(WScript.ScriptFullName),
@@ -24,19 +32,19 @@ WScript.Echo(head + help);
 WScript.Echo(md);
 
 
-//Pandoc 
-exe="pandoc";
+
+//Make HTML via Pandoc
 try{
-  WshShell.Run(exe + " -v", 0, true);
+  WshShell.Run(panexe + " -v", 0, true);
 }
 catch(e){
-  WScript.Echo("Unable to find: " + exe +" to make html docs.");
+  WScript.Echo("Unable to find: " + panexe +" to make html docs.");
   WScript.Quit();
 }
 
-  WScript.Echo(exe + " " + md +" -o " + dir + "\\readme.html");
+  WScript.Echo(panexe + " " + md +" -o " + dir + "\\readme.html");
 
-WshShell.Run(exe + " " + md +" -o " + dir + "\\readme.html", 1, true);
+WshShell.Run(panexe + " " + md +" -o " + dir + "\\readme.html", 1, true);
 
 
 

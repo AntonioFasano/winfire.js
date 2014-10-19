@@ -24,12 +24,18 @@ To distinguish command lines from their output the former are  are prefixed with
 If you choose another shell modify the commands accordingly.
 Whatever your preferences, always *open the chosen shell  with elevated privileges*. 
 
+The best way for most users should be  to run `winfire.exe` 64 bit executable. In case you are still on a 32 bit system, turn to `winfire-any.exe`.
 
-The best way is to make `winfire.js` into an executable. Assuming that `winfire.js` is in your current directory, use:
+
+
+### Build your own winfire
+
+To  make `winfire.js` into an executable, assuming that `winfire.js` is in your current directory, use:
+
 
 	PS> C:\Windows\Microsoft.NET\Framework\v<last-version>\jsc.exe .\winfire.js
 
-Replace `<last-version>` with the last version available in you system. You may get it straight via the shell auto-completion. Anyway, iff you have changed the default Windows installation, print the available .Net directories with (they all start with a 'v'):
+Replace `<last-version>` with the last version available in you system. You may get it straight via the shell auto-completion. Anyway, if you have changed the default Windows installation, print the available .Net directories with (they all start with a 'v'):
 
 	PS> dir $env:windir\Microsoft.NET\Framework\v*
 
@@ -40,7 +46,8 @@ After building `winfire.exe`,  try it works with:
 
 ### winfire.js as a WSH script
 
-If for some reason you prefer to run winfire.js as a Windows Scripting Host (WSH) script, assuming that winfire is in your path, the long way to run it is:
+`winfire.js`  is a script so it can be runs  as a Windows Scripting Host (WSH) script. 
+If for some reason you prefer to run winfire.js as WSH script, assuming that winfire is in your path, the *long* way to run it is:
 
     PS> cscript winfire.js /help
 
@@ -64,7 +71,9 @@ Note that this change is persistent. If you want to restore the original `WScrip
 
 ### winfire.js and/or winfire.exe 
 
-Building `winfire.exe` is a matter of seconds. So, even  assuming you need to adapt often the script for some special needs, it is always convenient to recompile it again.
+`winfire.js` code is written so that it can be run as a WSH script or compiled with the  Microsoft `jsc` compiler, which is already on your system.
+
+Building `winfire.exe` is a matter of seconds. So, even  assuming you need to adapt often the script for some special needs, it is  convenient to recompile it again.
 
 When you run the script via WSH, it is interpreted, so it will be a tad slower; beside you are using an older version version of the JScript language, confront the last line of `winfire.js /help` and `winfire.exe /help` to learn about the version in use. 
 
@@ -189,7 +198,7 @@ The following is the output you might get from   winfire `/help` option.
     by Antonio FASANO   
     https://github.com/AntonioFasano/winfire.js   
     
-    winfire.js [options]
+    winfire.exe [options]
     Use double quotations for option values containing spaces: /opt:"my val"
     
     /h[elp]                 This help
@@ -301,5 +310,5 @@ The following is the output you might get from   winfire `/help` option.
     .\winfire /ra:myrule /app:"app path" /tcp /lp:2300 /enab /if:$lan
     .\winfire /rs:myrule
     
-    JScript major version: 5    
+    JScript major version: 11    
     

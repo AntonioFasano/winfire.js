@@ -6,14 +6,16 @@
 <h2 id="how-to-run-winfire-in-your-favourite-shell">How to run winfire in your favourite shell</h2>
 <p>The command examples presented here are based on the native Windows PowerShell. To distinguish command lines from their output the former are are prefixed with <code>PS&gt;</code>.</p>
 <p>If you choose another shell modify the commands accordingly. Whatever your preferences, always <em>open the chosen shell with elevated privileges</em>.</p>
-<p>The best way is to make <code>winfire.js</code> into an executable. Assuming that <code>winfire.js</code> is in your current directory, use:</p>
+<p>The best way for most users should be to run <code>winfire.exe</code> 64 bit executable. In case you are still on a 32 bit system, turn to <code>winfire-any.exe</code>.</p>
+<h3 id="build-your-own-winfire">Build your own winfire</h3>
+<p>To make <code>winfire.js</code> into an executable, assuming that <code>winfire.js</code> is in your current directory, use:</p>
 <pre><code>PS&gt; C:\Windows\Microsoft.NET\Framework\v&lt;last-version&gt;\jsc.exe .\winfire.js</code></pre>
-<p>Replace <code>&lt;last-version&gt;</code> with the last version available in you system. You may get it straight via the shell auto-completion. Anyway, iff you have changed the default Windows installation, print the available .Net directories with (they all start with a 'v'):</p>
+<p>Replace <code>&lt;last-version&gt;</code> with the last version available in you system. You may get it straight via the shell auto-completion. Anyway, if you have changed the default Windows installation, print the available .Net directories with (they all start with a 'v'):</p>
 <pre><code>PS&gt; dir $env:windir\Microsoft.NET\Framework\v*</code></pre>
 <p>After building <code>winfire.exe</code>, try it works with:</p>
 <pre><code>PS&gt; winfire /help</code></pre>
 <h3 id="winfire.js-as-a-wsh-script">winfire.js as a WSH script</h3>
-<p>If for some reason you prefer to run winfire.js as a Windows Scripting Host (WSH) script, assuming that winfire is in your path, the long way to run it is:</p>
+<p><code>winfire.js</code> is a script so it can be runs as a Windows Scripting Host (WSH) script. If for some reason you prefer to run winfire.js as WSH script, assuming that winfire is in your path, the <em>long</em> way to run it is:</p>
 <pre><code>PS&gt; cscript winfire.js /help</code></pre>
 <p>This is because by default Windows runs scripts with the GUI based <code>WScript</code>. To simplify, you might change the defaults via:</p>
 <pre><code>PS&gt; $sys=&quot;$env:SystemRoot\System32\cscript.cmd&quot;
@@ -25,7 +27,8 @@ jsfile=cscript.cmd %1 %*</code></pre>
 <p>(Add <code>.js</code> if you have also the <code>.exe</code>.) Note that this change is persistent. If you want to restore the original <code>WScript</code> association, just use:</p>
 <pre><code>PS&gt; cmd /c ftype jsfile=wscript.exe &quot;%1&quot; %*</code></pre>
 <h3 id="winfire.js-andor-winfire.exe">winfire.js and/or winfire.exe</h3>
-<p>Building <code>winfire.exe</code> is a matter of seconds. So, even assuming you need to adapt often the script for some special needs, it is always convenient to recompile it again.</p>
+<p><code>winfire.js</code> code is written so that it can be run as a WSH script or compiled with the Microsoft <code>jsc</code> compiler, which is already on your system.</p>
+<p>Building <code>winfire.exe</code> is a matter of seconds. So, even assuming you need to adapt often the script for some special needs, it is convenient to recompile it again.</p>
 <p>When you run the script via WSH, it is interpreted, so it will be a tad slower; beside you are using an older version version of the JScript language, confront the last line of <code>winfire.js /help</code> and <code>winfire.exe /help</code> to learn about the version in use.</p>
 <p>If you call <code>winfire</code> (no extension), when you have both <code>.js</code> and <code>.exe</code> available in your path, the latter will have the precedence.</p>
 <h2 id="sample-winfire-commands">Sample winfire commands</h2>
@@ -89,7 +92,7 @@ Removed one: myrule          </code></pre>
 by Antonio FASANO   
 https://github.com/AntonioFasano/winfire.js   
 
-winfire.js [options]
+winfire.exe [options]
 Use double quotations for option values containing spaces: /opt:&quot;my val&quot;
 
 /h[elp]                 This help
@@ -201,4 +204,4 @@ $lan=.\winfire /cs:local
 .\winfire /ra:myrule /app:&quot;app path&quot; /tcp /lp:2300 /enab /if:$lan
 .\winfire /rs:myrule
 
-JScript major version: 5    </code></pre>
+JScript major version: 11    </code></pre>

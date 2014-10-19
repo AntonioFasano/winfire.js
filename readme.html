@@ -30,12 +30,12 @@ jsfile=cscript.cmd %1 %*</code></pre>
 <p>If you call <code>winfire</code> (no extension), when you have both <code>.js</code> and <code>.exe</code> available in your path, the latter will have the precedence.</p>
 <h2 id="sample-winfire-commands">Sample winfire commands</h2>
 <p>To add and enable the rule <code>myrule</code>, which allows <code>c:\myapp</code> to open the listening TCP 2300 port on the Local Area Connection:</p>
-<pre><code>PS&gt; .\winfire /rule-add:myrule /app:c:\myapp /prot-tcp /local-port:2300 /enab /interf:&quot;Local Area Connection&quot; /desc:&quot;Rule added by winfire&quot; 
+<pre><code>PS&gt; .\winfire /rule-add:myrule /app:c:\myapp /prot-tcp /local-port:2300 /enab /interf:&quot;Local Area Connection&quot;   
 Using profile: Private Profile, Public Profile</code></pre>
 <p>If a profile is not specified, the rule is active on any available profile, hence the command output.</p>
 <p>Note the colons after the options and quotations for including spaces.<br />It possible to attach to rule to more interfaces with separating names with commas and <em>no spaces</em>, e.g.: <code>/interf:&quot;Local Area Connection,Mobile Broadband Connection&quot;</code>.</p>
 <p>Note: Windows Firewall (and so winfire) accepts more rules with the same name.</p>
-<p>While the long version is often used in this section, winfire commands can be shortened (see command reference). Omitting the description, the previous line can be also written as:</p>
+<p>While here I will mostly use long version commands, winfire commands can be shortened (see command reference). Indeed the previous line can be also written as:</p>
 <pre><code>PS&gt; .\winfire /ra:myrule /app:c:\myapp /tcp /lp:2300 /enab /if:&quot;Local Area Connection&quot;</code></pre>
 <p>The interface or connection name, which is localised for your system language, can be found in the Network Connection folder, perhaps opened with <code>ncpa.cpl</code> (the word 'connection' is normally preferred when the interface is a modem).</p>
 <p>Anyway you can get the full list via:</p>
@@ -48,7 +48,7 @@ PS&gt; .\winfire /ra:myrule /app:c:\myapp /tcp /lp:2300 /enab /if:$lan</code></p
 <p>If you want details on the rule just added (and to check winfire did the job properly):</p>
 <pre><code>PS &gt; .\winfire /rule-show:myrule                          
 myrule                                                    
-Description:                                              
+Description:            Created by winfire                
 Profiles:               Private Profile, Public Profile   
 Application Name:       c:\myapp                          
 Service Name:                                             
@@ -64,7 +64,7 @@ Action:                 Allow
 Grouping:                                                 
 Interface Types:        All                               
 Interfaces:             Local Area Connection </code></pre>
-<p>If there are more rules with the same name, the last added will be displayed first.</p>
+<p>You can customise the &quot;Created by winfire&quot; line via the <code>/desc:DESC</code> option.<br />If there are more rules with the same name, the last added will be displayed first.</p>
 <p>To list all the rules relating to a specific connection use:</p>
 <pre><code>PS&gt; .\winfire /rule-show:$lan </code></pre>
 <p>where <code>$lan</code> is the variable set before for the local connection.<br />This command will return <code>myrule</code> and possibly other rules associated with this connection.</p>
@@ -78,7 +78,7 @@ Interfaces:             Local Area Connection </code></pre>
 Found 1 time(s) myrule       
 Removed one: myrule          </code></pre>
 <p>To understand the output, remember that Windows allows to add more rules with the same name. If you have <em>n</em> of them, you have to use <code>/rule-del</code> <em>n</em> times. Normally the last rule added will be removed first.</p>
-<h3 id="sample-script">Sample Script</h3>
+<h3 id="sample-script">Sample script</h3>
 <p>Given its command line nature, winfire fits to be added to scripts for adding firewall rules.</p>
 <p>Have a look at <code>netcat.ps1</code>. It is an interactive unit test script, which will authorise <code>netcat</code> network tool to open and start a chat via the <a href="http://virtualbox.org">VirtualBox</a> Virtual interface (<a href="https://www.virtualbox.org/manual/ch06.html#network_hostonly">host-only</a>) and deny the port access via the other interfaces, e.g. LAN, Wi-Fi.</p>
 <p><a href="wikipedia.org/wiki/Netcat">Netcat</a> is a classic net testing tool already available out of the box in Linux. For Windows you may use the <a href="https://cygwin.com/packages">Cygwin</a> version or a native executable, such as the one coming with <a href="http://nmap.org/">nmap</a> application.</p>
@@ -107,7 +107,7 @@ Use double quotations for option values containing spaces: /opt:&quot;my val&quo
 /act-allow        packets matching rule criteria rule are permitted (default)
 /app:APPPATH      traffic generated by app with APPPATH matches this rule. 
                   If `/app&#39; is not given, any program matches this rule.
-/desc:NAME        the rule long decription
+/desc:DESC        the rule long decription. Defaults to &#39;Created by winfire&#39;
 /dir-in           matches inbound network traffic (See Inbound Rules of Advanced Firewall snap-in)
 /dir-out          matches outbound network traffic(See Outbound Rules of Advanced Firewall snap-in)
 /edge             traffic that traverses an edge device, such as a NAT enabled router between

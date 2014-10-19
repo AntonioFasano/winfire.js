@@ -81,7 +81,7 @@ Sample winfire commands
 To add and enable the  rule `myrule`, which allows `c:\myapp` to open the listening TCP 2300 port on the Local Area Connection:
 
 
-    PS> .\winfire /rule-add:myrule /app:c:\myapp /prot-tcp /local-port:2300 /enab /interf:"Local Area Connection" /desc:"Rule added by winfire"	
+    PS> .\winfire /rule-add:myrule /app:c:\myapp /prot-tcp /local-port:2300 /enab /interf:"Local Area Connection"	
 	Using profile: Private Profile, Public Profile
 
    If a profile is not specified, the rule is active on any available profile, hence the command output.
@@ -91,7 +91,7 @@ It possible to attach to rule to more interfaces with separating names with comm
 
 Note: Windows Firewall (and so winfire) accepts more rules with the same name. 
 
-While the long version is often  used in this section, winfire commands can be shortened (see command reference). Omitting the description, the previous line can be also written as:
+While here I will mostly use  long version commands,  winfire commands can be shortened (see command reference). Indeed the previous line can be also written as:
 
     PS> .\winfire /ra:myrule /app:c:\myapp /tcp /lp:2300 /enab /if:"Local Area Connection"
 
@@ -116,7 +116,7 @@ If you want details on the rule just added (and to check winfire did the job pro
 
     PS > .\winfire /rule-show:myrule                          
     myrule                                                    
-    Description:                                              
+    Description:            Created by winfire                
     Profiles:               Private Profile, Public Profile   
     Application Name:       c:\myapp                          
     Service Name:                                             
@@ -134,6 +134,7 @@ If you want details on the rule just added (and to check winfire did the job pro
     Interfaces:             Local Area Connection 
 
 
+You can customise the  "Created by winfire" line via the `/desc:DESC` option.  
 If there are more rules  with the same name, the last added will be displayed first. 
 
 To list all the rules relating to a specific connection use:
@@ -165,7 +166,7 @@ To delete the rule just created:
 To understand the output, remember  that Windows allows to add more rules with the same name. If you have *n* of them, you have to use `/rule-del`  *n* times. Normally the last rule  added will be removed first. 
 
 
-### Sample Script
+### Sample script
 
 Given its command line nature, winfire fits to be added to scripts for adding firewall rules.
 

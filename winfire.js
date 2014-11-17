@@ -179,7 +179,7 @@ var
     o_service="";  
 
 
-//Constants
+// API Constants
 var
                                                                   
 // Action            
@@ -216,22 +216,20 @@ NET_FW_IP_PROTOCOL_ICMPv6 = 58
 ;
 
 
-//Globals: Misc
-var Args= Array(),
-    ArgsKey=Array(), ArgsKeyVal=Array(), ArgsUnnamed=Array(),
+//Globals: Cross Language
+var Args=[], ArgsKey=[], ArgsKeyVal=[], ArgsUnnamed=[], 
     ScriptPath, ScriptName,
     StdOut, StdErr;
+    initCross();
 
 
+//Let's start
 Main();
-
 
 
 function Main(){
 
   interface2array();
-
-  InitConsole();
   ParseArgs();
 
   if(o_conShow){
@@ -266,9 +264,6 @@ function Main(){
 function ParseArgs(){
 
 
-  argNames();
-
-
   // No named args triggers help
   //if(WScript.Arguments.named.Count==0)
   if(ArgsKey.length==0)
@@ -276,10 +271,9 @@ function ParseArgs(){
 
   // UnNamed args
   //if(WScript.Arguments.Unnamed.Count>0)
-  if(ArgsUnnamed.length>0)
+   if(ArgsUnnamed.length>0)
     ShowUsage("Wrong arguments. Note: options start with a leading `/\'.") ;
 
- 
   // Named args
   //var argsNamed=WScript.Arguments.Named;
   //for (var e =new Enumerator(argsNamed); !e.atEnd(); e.moveNext()) {
@@ -704,41 +698,38 @@ function indexOf (arr, item){
 //end  similEcma 5
 
 
-//Manage cross-language JScript/JScript.Net
-// 
-//JScript
-@if( @_jscript_version < 6 )
+// Manage cross-language JScript/JScript.Net
+// -----------------------------------------
+
+//Global Cross Functions  
+@if( @_jscript_version < 6 ) //JScript
   //WScript.Echo(@_jscript_version);
   function echo(str) {WScript.Echo(str)};
   function quit() {WScript.Quit()};
   function exit(n) {WScript.Quit(n)};
   function int (x) {return x} 
-  ScriptPath =WScript.ScriptFullName;
-  for (var i = 0; i < WScript.Arguments.length; i++)
-    Args.push (WScript.Arguments(i));
 
-//JScript.Net
-@else 
+@else  //JScript.Net
   //print(@_jscript_version);  
   function echo(str) {print(str)};
   import System;
   function quit() {Environment.Exit(0)};
   function exit(n) {Environment.Exit(n)};
-  ScriptPath =Environment.GetCommandLineArgs()[0];
-  Args = Environment.GetCommandLineArgs().slice(1); 
 @end
 
-function argNames() {
-  //JScript
-  @if( @_jscript_version < 6 )
+//Initialise Global cross objects
+function initCross() {
+
+  //Arguments
+  @if( @_jscript_version < 6 ) //JScript
     ScriptPath =WScript.ScriptFullName;
     for (var i = 0; i < WScript.Arguments.length; i++)
       Args.push (WScript.Arguments(i));
-  //JScript.Net
-  @else 
+  @else   //JScript.Net
     ScriptPath =Environment.GetCommandLineArgs()[0];
     Args = Environment.GetCommandLineArgs().slice(1); 
   @end
+
 
 
   ScriptName=ScriptPath.slice(ScriptPath.lastIndexOf('\\')+1);
@@ -748,18 +739,19 @@ function argNames() {
       ArgsKey.push(col<0 ? Args[i].slice(1) : Args[i].slice(1, col));
       ArgsKeyVal.push(col<0 ? undefined  : Args[i].slice(col+1));
     }
-    else ArgsUnnamed.push(Args[i]);
+    else 
+      ArgsUnnamed.push(Args[i]);
+    
   }
-}
 
-function InitConsole() {
-  //JScript
-  @if( @_jscript_version < 6 )
+
+
+  //Console  
+  @if( @_jscript_version < 6 ) //JScript
     StdOut=WScript.StdOut;
     StdErr=WScript.StdErr;
 
-  //JScript.Net
-  @else 
+  @else  //JScript.Net
     StdOut=Console.Out;
     StdErr=Console.Error;
   @end

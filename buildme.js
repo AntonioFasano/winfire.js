@@ -5,7 +5,10 @@
 //Pandoc 
 var panexe="pandoc";
 
-//Some objects
+// To get last jsc version available on your system 
+// buildme /find
+
+// Some objects
 var oShell = new ActiveXObject("WScript.Shell"),
     oFS = new ActiveXObject("Scripting.FileSystemObject"),
     scdir = oFS.GetParentFolderName(WScript.ScriptFullName),
@@ -13,7 +16,7 @@ var oShell = new ActiveXObject("WScript.Shell"),
     ForReading = 1, ForWriting = 2, Create=true;
 
 // Find latest jsc compiler
-var netfrm=windir.replace(/\\$/, '') + "\\Microsoft.NET\\Framework",
+var netfrm=windir.replace(/\\$/, '') + "\\Microsoft.NET\\Framework64",
     netvlast, jsc;
 
 if (!oFS.FolderExists(netfrm)){
@@ -30,6 +33,13 @@ if (!oFS.FileExists(jsc)){
   WScript.Echo ("Unable to find jsc compiler");
   WScript.Quit(1);
 }
+
+// Find jsc only
+if (WScript.Arguments.Named.Exists("find")){
+  WScript.Echo ("Last jsc version found:\n" + jsc);
+  WScript.Quit(0);
+}
+
 
 
 //Build winfire.exe

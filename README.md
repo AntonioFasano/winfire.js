@@ -3,16 +3,14 @@ winfire.js aka winfire
 
 [github.com/AntonioFasano/winfire.js](https://github.com/AntonioFasano/winfire.js)
 
-This JScript script helps managing Windows Firewall, setting per per interface rules.  
-You can use it interactively or inside your own scripts, creating Windows Firewall rules.
+Winfire helps managing Windows Firewall, setting  per interface rules.  
+You can use it interactively or inside your own scripts for creating Windows Firewall rules.
 
 
 Winfire has been tested under Windows 7. It is based on
-[Windows Firewall with Advanced Security Interfaces](http://msdn.microsoft.com/en-us/library/windows/desktop/ff956124). The minimum supported client for this API is Windows Vista and  the minimum supported server is Windows Server 2008.
+[Windows Firewall with Advanced Security Interfaces](http://msdn.microsoft.com/en-us/library/windows/desktop/ff956124). The minimum supported client for this API is Windows Vista and  the minimum supported server is Windows Server 2008. Winfire is based on JScript for Microsoft .NET Framework.
 
-
-
-Note: You need  elevated privileges to modify Windows Firewall settings and so for `winfire.js` too.
+Note: You need  elevated privileges to modify Windows Firewall settings and so for `winfire`.
 
 
 How to run winfire in your favourite shell
@@ -28,30 +26,48 @@ The best way for most users should be  to run `winfire.exe` 64 bit executable. I
 
 
 
-### Build your own winfire
+### Build your own winfire executable
 
 To  make `winfire.js` into an executable, assuming that `winfire.js` is in your current directory, use:
 
 
-	PS> C:\Windows\Microsoft.NET\Framework\v<last-version>\jsc.exe .\winfire.js
+	PS> C:\Windows\Microsoft.NET\Framework64\v<last-version>\jsc.exe .\winfire.js
 
 Replace `<last-version>` with the last version available in you system. You may get it straight via the shell auto-completion. Anyway, if you have changed the default Windows installation, print the available .Net directories with (they all start with a 'v'):
 
-	PS> dir $env:windir\Microsoft.NET\Framework\v*
+	PS> dir $env:windir\Microsoft.NET\Framework64\v*
 
-After building `winfire.exe`,  try it works with:
+Note that there is also an x86-folder `Microsoft.NET\Framework` 
+
+As an alternative, to find `jsc.exe` path you may use:
+
+	PS> cscript.exe buildme.js /find 
+
+With:
+
+	PS> cscript.exe buildme.js  
+
+You will build a Win64 exe, an any-platform exe and create the `readme.html` doc, which requires [pandoc](johnmacfarlane.net/pandoc/) availability on your system. 
+
+
+After building `winfire.exe`,  try if it works with:
 
     PS> winfire /help
 
 
+You may want to use also the `netcat.ps1` unit test (see see [Sample script](#sample-script) ahead).
+
+
 ### winfire.js as a WSH script
 
-`winfire.js`  is a script so it can be runs  as a Windows Scripting Host (WSH) script. 
-If for some reason you prefer to run winfire.js as WSH script, assuming that winfire is in your path, the *long* way to run it is:
+While you may find the best way to use winfire is to run its executable version, the source code is engineered in such a way that you can  also run the JScript source `winfire.js` as a `cscript`-script via Microsoft Windows Scripting Host (WSH).
+
+
+If for some reason you prefer to run winfire.js as WSH script, assuming that winfire is in your path, the *long* way to run it querying for help is:
 
     PS> cscript winfire.js /help
 
-This is because by default Windows runs scripts with the GUI based `WScript`.
+This is because by default Windows runs scripts with the GUI based `WScript` engine.
 To simplify, you might change the defaults  via:
 
 	PS> $sys="$env:SystemRoot\System32\cscript.cmd"
@@ -63,13 +79,14 @@ Now you can run winfire with  the simpler:
 
     PS> winfire /help
 
-(Add `.js` if you have also the `.exe`.)
-Note that this change is persistent. If you want to restore the original `WScript` association, just use:
+_Beware_: use `winfire.js`, if you have also `winfire.exe` in your path.
+
+Note that the change of default engine is persistent. If you want to restore the original `WScript` association, just use:
 
 	PS> cmd /c ftype jsfile=wscript.exe "%1" %*
 
 
-### winfire.js and/or winfire.exe 
+### More on the differences between winfire.js and winfire.exe
 
 `winfire.js` code is written so that it can be run as a WSH script or compiled with the  Microsoft `jsc` compiler, which is already on your system.
 
@@ -81,11 +98,8 @@ If you call `winfire` (no extension), when you have both `.js` and `.exe` availa
 
 
 
-
-
-
-Sample winfire commands
------------------------
+Getting started with winfire commands
+-------------------------------------
 
 To add and enable the  rule `myrule`, which allows `c:\myapp` to open the listening TCP 2300 port on the Local Area Connection:
 
@@ -175,13 +189,13 @@ To delete the rule just created:
 To understand the output, remember  that Windows allows to add more rules with the same name. If you have *n* of them, you have to use `/rule-del`  *n* times. Normally the last rule  added will be removed first. 
 
 
-### Sample script
+### A sample script
 
 Given its command line nature, winfire fits to be added to scripts for adding firewall rules.
 
 Have a look at `netcat.ps1`.  It is an interactive unit test script,  which will authorise `netcat` network tool to open and start a chat via the [VirtualBox](http://virtualbox.org) Virtual interface ([host-only](https://www.virtualbox.org/manual/ch06.html#network_hostonly)) and deny the port access via the other interfaces, e.g. LAN, Wi-Fi.
 
-[Netcat](wikipedia.org/wiki/Netcat) is a classic net testing tool already available out of the box in Linux.
+[Netcat](http://wikipedia.org/wiki/Netcat) is a classic net testing tool already available out of the box in Linux.
 For Windows you may use the [Cygwin](https://cygwin.com/packages) version or  a native executable,  such as the one coming with [nmap](http://nmap.org/) application.
 
 Note that under Linux/Cygwin netcat name is `nc`, while in Windows it is normally `ncat.exe`.
